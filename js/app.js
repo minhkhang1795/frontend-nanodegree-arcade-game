@@ -48,10 +48,23 @@ Enemy.prototype.render = function () {
 };
 
 Enemy.prototype.isCollidedWith = function (player) {
-    if (!player)
+    if (!player && player instanceof Player)
         return false;
 
-    return false;
+    if (this.rowPosition() !== player.rowPosition())
+        return false;
+
+    if (this.x + 101 - 10 < player.x + 10 || this.x + 10 > player.x + 101 - 10)
+        return false;
+
+    return true;
+};
+
+/**
+ * Returns the row position the enemy is currently at
+ */
+Enemy.prototype.rowPosition = function () {
+    return (this.y - 60) / CELL_HEIGHT;
 };
 
 // Now write your own player class
@@ -64,7 +77,7 @@ let Player = function () {
 
     // The image/sprite for our player, this uses
     // a helper we've provided to easily load images
-    this.sprite = 'images/char-boy.png';
+    this.sprite = this.randomSprite();
     this.x = Math.floor(NUM_COL / 2) * CELL_WIDTH;
     this.y = (NUM_ROW - 1) * CELL_HEIGHT - 11;
     this.randomSprite();
@@ -79,7 +92,7 @@ Player.prototype.randomSprite = function () {
         'images/char-horn-girl.png',
         'images/char-pink-girl.png',
         'images/char-princess-girl.png'];
-    this.sprite = sprites[Math.floor(Math.random() * (0 - sprites.length) + sprites.length)];
+    return sprites[Math.floor(Math.random() * (0 - sprites.length) + sprites.length)];
 };
 
 /**
@@ -97,10 +110,9 @@ Player.prototype.update = function () {
  * Randomly initialize the player's character
  */
 Player.prototype.reset = function () {
-    this.sprite = 'images/char-boy.png';
+    this.sprite = this.randomSprite();
     this.x = Math.floor(NUM_COL / 2) * CELL_WIDTH;
     this.y = (NUM_ROW - 1) * CELL_HEIGHT - 11;
-    this.randomSprite();
 };
 
 /**
@@ -133,6 +145,13 @@ Player.prototype.handleInput = function (key) {
                 this.y += CELL_HEIGHT;
             break;
     }
+};
+
+/**
+ * Returns the row position the player is currently at
+ */
+Player.prototype.rowPosition = function () {
+    return (this.y + 11) / CELL_HEIGHT - 1;
 };
 
 // Now instantiate your objects.
