@@ -103,12 +103,8 @@ let Engine = (function (global) {
      * This function checks collisions between our player and the enemies
      */
     function checkCollisions() {
-        for (let enemy of allEnemies) {
-            if (enemy.isCollidedWith(player)) {
-                reset();
-                break;
-            }
-        }
+        if (player.isCollidedWithAnyIn(allEnemies))
+            reset();
     }
 
     /**
@@ -173,6 +169,9 @@ let Engine = (function (global) {
         });
 
         player.render();
+        allRocks.forEach(function (rock) {
+            rock.render();
+        });
     }
 
     /**
@@ -181,12 +180,10 @@ let Engine = (function (global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
+        level = 0;
         player.reset();
-        allEnemies = [];
-        for (let i = 0; i < 6; i++) {
-            let enemy = new Enemy();
-            allEnemies.push(enemy);
-        }
+        generateEnemies(true);
+        generateRocks();
     }
 
     /**
@@ -203,7 +200,8 @@ let Engine = (function (global) {
         'images/char-cat-girl.png',
         'images/char-horn-girl.png',
         'images/char-pink-girl.png',
-        'images/char-princess-girl.png'
+        'images/char-princess-girl.png',
+        'images/Rock.png'
     ]);
     Resources.onReady(init);
 
