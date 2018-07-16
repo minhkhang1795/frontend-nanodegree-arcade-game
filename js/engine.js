@@ -24,7 +24,7 @@ let Engine = (function (global) {
         lastTime;
 
     canvas.width = 707;
-    canvas.height = 808;
+    canvas.height = 909;
     doc.body.appendChild(canvas);
 
     /**
@@ -46,6 +46,7 @@ let Engine = (function (global) {
          */
         update(dt);
         render();
+        drawUI();
 
         /* Set our lastTime variable which is used to determine the time delta
          * for the next time this function is called.
@@ -126,9 +127,10 @@ let Engine = (function (global) {
                 'images/grass-block.png',   // Row 1 of 2 of grass
                 'images/stone-block.png',   // Row 4 of 5 of stone
                 'images/stone-block.png',   // Row 5 of 5 of stone
-                'images/grass-block.png'    // Row 2 of 2 of grass
+                'images/grass-block.png',   // Row 2 of 2 of grass
+                'images/wood-block.png'     // Last row is wood
             ],
-            numRows = 8,
+            numRows = 9,
             numCols = 7,
             row, col;
 
@@ -164,6 +166,9 @@ let Engine = (function (global) {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
+        allGems.forEach(function (gem) {
+            gem.render();
+        });
         allEnemies.forEach(function (enemy) {
             enemy.render();
         });
@@ -175,16 +180,46 @@ let Engine = (function (global) {
     }
 
     /**
+     *
+     */
+    function drawUI() {
+        ctx.drawImage(Resources.get('images/frogger-logo.png'), 59, 30);
+        let starResource = Resources.get('images/Star.png'),
+            gemBlueResource = Resources.get('images/Gem-Blue.png'),
+            gemGreenResource = Resources.get('images/Gem-Green.png'),
+            gemOrangeResource = Resources.get('images/Gem-Orange.png');
+        ctx.drawImage(starResource, 10, 670, starResource.width / 1.2, starResource.height / 1.2);
+        ctx.drawImage(gemBlueResource, 219, 682, gemBlueResource.width / 1.5, gemBlueResource.height / 1.5);
+        ctx.drawImage(gemGreenResource, 421, 682, gemGreenResource.width / 1.5, gemGreenResource.height / 1.5);
+        ctx.drawImage(gemOrangeResource, 623, 682, gemOrangeResource.width / 1.5, gemOrangeResource.height / 1.5);
+        ctx.font = "50px Gaegu";
+        ctx.fillStyle = "#fff";
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 3;
+        ctx.strokeText(level.toString(), 34, 825);
+        ctx.fillText(level.toString(), 34, 825);
+        ctx.strokeText(gemsCollected["blue"].toString(), 34 + 202, 825);
+        ctx.fillText(gemsCollected["blue"].toString(), 34 + 202, 825);
+        ctx.strokeText(gemsCollected["green"].toString(), 34 + 404, 825);
+        ctx.fillText(gemsCollected["green"].toString(), 34 + 404, 825);
+        ctx.strokeText(gemsCollected["orange"].toString(), 34 + 606, 825);
+        ctx.fillText(gemsCollected["orange"].toString(), 34 + 606, 825);
+    }
+
+    /**
      * This function does nothing but it could have been a good place to
      * handle game reset states - maybe a new game menu or a game over screen
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
         level = 0;
+        gemsCollected = {blue: 0, green: 0, orange: 0};
         player.reset();
-        generateEnemies(true);
+        generateGems();
         generateRocks();
+        generateEnemies(true);
     }
+
 
     /**
      * Go ahead and load all of the images we know we're going to need to
@@ -195,13 +230,19 @@ let Engine = (function (global) {
         'images/stone-block.png',
         'images/water-block.png',
         'images/grass-block.png',
+        'images/wood-block.png',
         'images/enemy-bug.png',
         'images/char-boy.png',
         'images/char-cat-girl.png',
         'images/char-horn-girl.png',
         'images/char-pink-girl.png',
         'images/char-princess-girl.png',
-        'images/Rock.png'
+        'images/Rock.png',
+        'images/Gem-Blue.png',
+        'images/Gem-Green.png',
+        'images/Gem-Orange.png',
+        'images/frogger-logo.png',
+        'images/Star.png',
     ]);
     Resources.onReady(init);
 

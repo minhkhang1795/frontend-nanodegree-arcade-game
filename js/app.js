@@ -3,10 +3,20 @@ const CELL_WIDTH = 101,
     NUM_COL = 7,
     NUM_ROW = 8,
     MAX_ENEMIES = 10,
-    MAX_ROCKS = 6;
-let level = 1;
+    MAX_ROCKS = 6,
+    GemType = Object.freeze({BLUE: "blue", GREEN: "green", ORANGE: "orange"});
+let level = 1,
+    gemsCollected = {blue: 0, green: 0, orange: 0};
 
-// Enemies our player must avoid
+
+/**
+ * The Enemy class constructor
+ * @param sprite
+ * @param x
+ * @param y
+ * @param velocityX
+ * @constructor
+ */
 let Enemy = function (sprite = 'images/enemy-bug.png', x = 0, y = 60, velocityX = 50) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
@@ -58,13 +68,14 @@ Enemy.prototype.render = function () {
  * @returns {number}
  */
 Enemy.prototype.rowPosition = function () {
-    return (this.y - 60) / CELL_HEIGHT;
+    return Math.floor((this.y - 60) / CELL_HEIGHT);
 };
 
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
-// Player class
+
+/**
+ * The Player class constructor
+ * @constructor
+ */
 let Player = function () {
     this.sprite = this.randomSprite();
     this.x = Math.floor(NUM_COL / 2) * CELL_WIDTH;
@@ -88,11 +99,13 @@ Player.prototype.randomSprite = function () {
  * Update the player's position, required method for game
  */
 Player.prototype.update = function () {
+    // Player reaches the water, continue to next level
     if (this.y < 0) {
         level++;
+        this.reset();
+        generateGems();
         generateRocks();
         generateEnemies();
-        this.reset();
     }
 };
 
@@ -136,6 +149,16 @@ Player.prototype.handleInput = function (key) {
                 this.y += CELL_HEIGHT;
             break;
     }
+
+    for (let i = 0; i < allGems.length; i++) {
+        let gem = allGems[i];
+        if (player.isCollidedWithA(gem)) {
+            gemsCollected[gem.type]++;
+            allGems.splice(i, 1);
+            gem = null;
+            break;
+        }
+    }
 };
 
 /**
@@ -146,7 +169,7 @@ Player.prototype.handleInput = function (key) {
  * @returns {boolean}
  */
 Player.prototype.isCollidedWithA = function (object, x = 0, y = 0) {
-    if (!object || !(object instanceof Enemy) && !(object instanceof Rock))
+    if (!object || !(object instanceof Enemy) && !(object instanceof Rock) && !(object instanceof Gem))
         return false;
 
     if (this.rowPosition(y) !== object.rowPosition())
@@ -186,7 +209,14 @@ Player.prototype.rowPosition = function (y = 0) {
     return (this.y + y + 11) / CELL_HEIGHT - 1;
 };
 
-// Rocks are obstacles that the player has to circumvent
+
+/**
+ * The rock class constructor
+ * Rocks are obstacles that the player has to circumvent
+ * @param x
+ * @param y
+ * @constructor
+ */
 let Rock = function (x = 0, y = 60 + CELL_HEIGHT * 3) {
     this.sprite = 'images/Rock.png';
     this.x = x;
@@ -205,8 +235,85 @@ Rock.prototype.render = function () {
  * @returns {number}
  */
 Rock.prototype.rowPosition = function () {
-    return (this.y - 60) / CELL_HEIGHT;
+    return Math.floor((this.y - 60) / CELL_HEIGHT);
 };
+
+
+/**
+ * Define Gem class.
+ * Blue Gem: +30 points
+ * Green Gem: +40 points
+ * Orange Gem: +50 points
+ * @param x
+ * @param y
+ * @param {GemType} type
+ * @constructor
+ */
+let Gem = function (x = 0, y = 0, type = GemType.BLUE) {
+    this.x = x;
+    this.y = y;
+    this.type = type;
+    switch (this.type) {
+        case GemType.GREEN:
+            this.sprite = 'images/Gem-Green.png';
+            break;
+        case GemType.ORANGE:
+            this.sprite = 'images/Gem-Orange.png';
+            break;
+        case GemType.BLUE:
+        default:
+            this.sprite = 'images/Gem-Blue.png';
+    }
+};
+
+/**
+ * Draw the gem on the screen, required method for game
+ */
+Gem.prototype.render = function () {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+/**
+ * Generate a random position for a gem on a stone block
+ */
+Gem.prototype.generateRandomPosition = function () {
+    let cols = [0, 1, 2, 3, 4, 5, 6],
+        rows = [0, 1, 2, 4, 5],
+        randomNumber = Math.floor(Math.random() * (0 - 35) + 35);
+    this.x = cols[randomNumber % 7] * CELL_WIDTH;
+    this.y = rows[randomNumber % 5] * CELL_HEIGHT + 60;
+};
+
+/**
+ * Check if this gem is at the same spot as another gem
+ * @param {Gem} gem
+ * @returns {boolean}
+ */
+Gem.prototype.isAtSamePositionAs = function (gem) {
+    if (!gem || !(gem instanceof Gem))
+        return false;
+
+    if (this.rowPosition() === gem.rowPosition() && this.colPosition() === gem.colPosition())
+        return true;
+    return false;
+};
+
+/**
+ * Returns the row position the gem
+ * @returns {number}
+ */
+Gem.prototype.rowPosition = function () {
+    return Math.floor((this.y - 60) / CELL_HEIGHT);
+};
+
+/**
+ * Returns the col position the gem
+ * @returns {number}
+ */
+Gem.prototype.colPosition = function () {
+    return Math.floor(this.x / CELL_WIDTH);
+};
+
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
@@ -217,9 +324,12 @@ generateEnemies();
 let allRocks = [];
 generateRocks();
 
+// Generate gems depending on the level
+let allGems = [];
+generateGems();
+
 // Place the player object in a variable called player
 let player = new Player();
-
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
@@ -234,7 +344,7 @@ document.addEventListener('keyup', function (e) {
     player.handleInput(allowedKeys[e.keyCode]);
 });
 
-function generateEnemies(shouldEmpty=false) {
+function generateEnemies(shouldEmpty = false) {
     if (shouldEmpty)
         allEnemies = [];
     let numEnemies = MAX_ENEMIES < level + 3 ? MAX_ENEMIES : level + 3;
@@ -247,13 +357,35 @@ function generateRocks() {
     allRocks = []; // List of Rock objects
     let rockPositions = []; // List of the column positions of rocks
     let numRocks = MAX_ROCKS < Math.floor(level / 2) ? MAX_ROCKS : Math.floor(level / 2);
+    // Choose ${numRocks} random rocks out of 7 rock positions
     while (rockPositions.length !== numRocks) {
-        let n = Math.floor(Math.random() * (0 - MAX_ROCKS) + MAX_ROCKS);
+        let n = Math.floor(Math.random() * (0 - 49) + 49) % 7;
         if (rockPositions.length === 0 || !rockPositions.includes(n))
             rockPositions.push(n);
     }
     for (let i = 0; i < numRocks; i++) {
         allRocks.push(new Rock(rockPositions[i] * 101));
+    }
+}
+
+function generateGems() {
+    allGems = [];
+    allGems.push(new Gem(0, 0, GemType.BLUE));
+    if (level > 5) {
+        allGems.push(new Gem(0, 0, GemType.GREEN));
+    }
+    if (level > 10) {
+        allGems.push(new Gem(0, 0, GemType.ORANGE));
+    }
+
+    for (let i = 0; i < allGems.length; i++) {
+        allGems[i].generateRandomPosition();
+        for (let j = 0; j < i; j++) {
+            if (allGems[i].isAtSamePositionAs(allGems[j])) {
+                i--;
+                break;
+            }
+        }
     }
 }
 
