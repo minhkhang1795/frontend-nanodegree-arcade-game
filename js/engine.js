@@ -24,7 +24,7 @@ let Engine = (function (global) {
         lastTime;
 
     canvas.width = 707;
-    canvas.height = 909;
+    canvas.height = 840;
     doc.body.appendChild(canvas);
 
     /**
