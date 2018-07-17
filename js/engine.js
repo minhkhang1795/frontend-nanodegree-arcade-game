@@ -229,7 +229,7 @@ let Engine = (function (global) {
             gemOrangeResource = Resources.get('images/Gem-Orange.png'),
             offset = 70;
         // Draw image assets
-        ctx.drawImage(scoreBoard, (canvas.width - scoreBoard.width) / 2, (canvas.height - scoreBoard.height) / 2 - offset);
+        ctx.drawImage(scoreBoard, (canvas.width - scoreBoard.width) / 2, (canvas.height - scoreBoard.height - offset) / 2);
         ctx.drawImage(starResource, 175, 260 - offset, starResource.width / 1.5, starResource.height / 1.5);
         ctx.drawImage(gemBlueResource, 180, 345 - offset, gemBlueResource.width / 1.8, gemBlueResource.height / 1.8);
         ctx.drawImage(gemGreenResource, 180, 425 - offset, gemGreenResource.width / 1.8, gemGreenResource.height / 1.8);
