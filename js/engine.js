@@ -180,7 +180,7 @@ let Engine = (function (global) {
     }
 
     /**
-     *
+     * Draw the user interface of the game including title, score and gem counts
      */
     function drawUI() {
         ctx.drawImage(Resources.get('images/frogger-logo.png'), 59, 30);
@@ -204,6 +204,17 @@ let Engine = (function (global) {
         ctx.fillText(gemsCollected["green"].toString(), 34 + 404, 825);
         ctx.strokeText(gemsCollected["orange"].toString(), 34 + 606, 825);
         ctx.fillText(gemsCollected["orange"].toString(), 34 + 606, 825);
+        // showScoreBoard();
+    }
+
+    /**
+     * This function draws the score board when the player wins or loses the game.
+     * The player wins the game when they pass level 14
+     * The player loses it when they hit a bug
+     */
+    function showScoreBoard(isVictory) {
+        let text = isVictory ? 'Congrats, you won!' : 'Ah, you lost!';
+        ctx.drawImage(Resources.get('images/score-board.jpg'), 0, 0);
     }
 
     /**
@@ -243,6 +254,7 @@ let Engine = (function (global) {
         'images/Gem-Orange.png',
         'images/frogger-logo.png',
         'images/Star.png',
+        'images/score-board.jpg'
     ]);
     Resources.onReady(init);
 
