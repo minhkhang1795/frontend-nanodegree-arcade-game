@@ -4,7 +4,7 @@ The Frogger Game
 Apply OOP in Javascript to create a classic arcade game: the Frogger. This is one of the projects for Udacity Front-End Web Developer Nanodegree Program. 
 
 ## How The Game Works
-In this game, you have a Player and Enemies (Bugs). The goal of the player is to reach the water, without colliding into any one of the enemies. The player can move left, right, up and down. The enemies move in varying speeds on the paved block portion of the scene. Once the player collides with an enemy, the game is reset and the player moves back to the start square. Once the player reaches the water, the game moves to the next level. The player can collect gems to increase their final score. The player wins when the level 15 is reached
+In this game, you have a Player and Enemies (Bugs). The goal of the player is to reach the water, without colliding into any one of the enemies. The player can move left, right, up and down. The enemies move in varying speeds on the paved block portion of the scene. Once the player collides with an enemy, the game is reset and the player moves back to the start square. Once the player reaches the water, the game moves to the next level. The player can collect gems to increase their final score. The player wins when the level 15 is reached.
 
 The player can:
 

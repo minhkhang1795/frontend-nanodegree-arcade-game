@@ -213,7 +213,7 @@ let Engine = (function (global) {
     }
 
     /**
-     * This function draws the score board when the player wins or loses the game.
+     * This function draws the scoreboard when the player wins or loses the game.
      * The player wins the game when they pass level 14
      * The player loses it when they hit a bug
      */
