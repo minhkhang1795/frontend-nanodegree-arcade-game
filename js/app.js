@@ -1,3 +1,7 @@
+/** app.js
+ * This file stores class definitions and initializes main objects of the game.
+ * All the logic will be handled here while the front-end will be in engine.js
+ */
 const CELL_WIDTH = 101,
     CELL_HEIGHT = 83,
     NUM_COL = 7,
@@ -5,18 +9,19 @@ const CELL_WIDTH = 101,
     MAX_ENEMIES = 10,
     MAX_ROCKS = 6,
     GemType = Object.freeze({BLUE: "blue", GREEN: "green", ORANGE: "orange"});
-let level = 1,
-    gemsCollected = {blue: 0, green: 0, orange: 0};
+let level = 0,
+    gemsCollected = {blue: 0, green: 0, orange: 0},
+    isPlaying = true;
 
 
-/**
- * The Enemy class constructor
- * @param sprite
- * @param x
- * @param y
- * @param velocityX
- * @constructor
- */
+/************************************************************
+ * The Enemy class constructor                              *
+ * @param sprite                                            *
+ * @param x                                                 *
+ * @param y                                                 *
+ * @param velocityX                                         *
+ * @constructor                                             *
+ ************************************************************/
 let Enemy = function (sprite = 'images/enemy-bug.png', x = 0, y = 60, velocityX = 50) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
@@ -72,10 +77,10 @@ Enemy.prototype.rowPosition = function () {
 };
 
 
-/**
- * The Player class constructor
- * @constructor
- */
+/************************************************************
+ * The Player class constructor                             *
+ * @constructor                                             *
+ ************************************************************/
 let Player = function () {
     this.sprite = this.randomSprite();
     this.x = Math.floor(NUM_COL / 2) * CELL_WIDTH;
@@ -97,20 +102,27 @@ Player.prototype.randomSprite = function () {
 
 /**
  * Update the player's position, required method for game
+ * Also check whether the player reaches the water or they reach level 15
  */
 Player.prototype.update = function () {
     // Player reaches the water, continue to next level
-    if (this.y < 0) {
+    if (this.y < 0 && isPlaying) {
         level++;
-        this.reset();
-        generateGems();
-        generateRocks();
-        generateEnemies();
+        if (level >= 15) {
+            // Victory
+            isPlaying = false; // Pause the game and show the score board
+        } else {
+            this.reset();
+            generateGems();
+            generateRocks();
+            generateEnemies();
+        }
     }
 };
 
 /**
- * Randomly initialize the player's character
+ * Randomly initialize the player's character (sprite)
+ * Set the position back to start
  */
 Player.prototype.reset = function () {
     this.sprite = this.randomSprite();
@@ -127,6 +139,8 @@ Player.prototype.render = function () {
 
 /**
  * Handle key input from the user
+ * Arrow keys, wasd is to move the character
+ * Space bar to restart the game
  * @param key
  */
 Player.prototype.handleInput = function (key) {
@@ -147,6 +161,13 @@ Player.prototype.handleInput = function (key) {
         case 'down':
             if (this.y < CELL_HEIGHT * (NUM_ROW - 1) - 55 && !player.isCollidedWithAnyIn(allRocks, 0, CELL_HEIGHT))
                 this.y += CELL_HEIGHT;
+            break;
+        case 'space':
+            // Restart the game
+            if (!isPlaying) {
+                isPlaying = true;
+                reset();
+            }
             break;
     }
 
@@ -210,13 +231,13 @@ Player.prototype.rowPosition = function (y = 0) {
 };
 
 
-/**
- * The rock class constructor
- * Rocks are obstacles that the player has to circumvent
- * @param x
- * @param y
- * @constructor
- */
+/************************************************************
+ * The rock class constructor                               *
+ * Rocks are obstacles that the player has to circumvent    *
+ * @param x                                                 *
+ * @param y                                                 *
+ * @constructor                                             *
+ ************************************************************/
 let Rock = function (x = 0, y = 60 + CELL_HEIGHT * 3) {
     this.sprite = 'images/Rock.png';
     this.x = x;
@@ -239,16 +260,16 @@ Rock.prototype.rowPosition = function () {
 };
 
 
-/**
- * Define Gem class.
- * Blue Gem: +30 points
- * Green Gem: +40 points
- * Orange Gem: +50 points
- * @param x
- * @param y
- * @param {GemType} type
- * @constructor
- */
+/************************************************************
+ * Define Gem class.                                        *
+ * Blue Gem: +30 points                                     *
+ * Green Gem: +40 points                                    *
+ * Orange Gem: +50 points                                   *
+ * @param x                                                 *
+ * @param y                                                 *
+ * @param {GemType} type                                    *
+ * @constructor                                             *
+ ************************************************************/
 let Gem = function (x = 0, y = 0, type = GemType.BLUE) {
     this.x = x;
     this.y = y;
@@ -315,12 +336,16 @@ Gem.prototype.colPosition = function () {
 };
 
 
-// Now instantiate your objects.
+/************************************************************
+ *                                                          *
+ * Begin to initialize objects and set things up            *
+ *                                                          *
+ * **********************************************************/
 // Place all enemy objects in an array called allEnemies
 let allEnemies = [];
 generateEnemies();
 
-// Place the rocks randomly on the grasses, the number of rocks depends on the current level
+// Place the rocks randomly on the grass lane, the number of rocks depends on the current level
 let allRocks = [];
 generateRocks();
 
@@ -336,14 +361,39 @@ let player = new Player();
 document.addEventListener('keyup', function (e) {
     let allowedKeys = {
         37: 'left',
+        65: 'left',
         38: 'up',
+        87: 'up',
         39: 'right',
-        40: 'down'
+        68: 'right',
+        40: 'down',
+        83: 'down',
+        32: 'space'
     };
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
 
+
+/**
+ * This function does nothing but it could have been a good place to
+ * handle game reset states - maybe a new game menu or a game over screen
+ * those sorts of things. It's only called once by the init() method.
+ *
+ */
+function reset() {
+    level = 0;
+    gemsCollected = {blue: 0, green: 0, orange: 0};
+    player.reset();
+    generateGems();
+    generateRocks();
+    generateEnemies(true);
+}
+
+/**
+ * Generate random enemies by filling out the allEnemies list
+ * @param shouldEmpty: should empty the list before adding new enemies
+ */
 function generateEnemies(shouldEmpty = false) {
     if (shouldEmpty)
         allEnemies = [];
@@ -353,6 +403,9 @@ function generateEnemies(shouldEmpty = false) {
     }
 }
 
+/**
+ * Generate random rocks on the middle grass lane
+ */
 function generateRocks() {
     allRocks = []; // List of Rock objects
     let rockPositions = []; // List of the column positions of rocks
@@ -368,6 +421,9 @@ function generateRocks() {
     }
 }
 
+/**
+ * Generate random gems on the block lane. The number of gems depends on the current level
+ */
 function generateGems() {
     allGems = [];
     allGems.push(new Gem(0, 0, GemType.BLUE));
@@ -389,6 +445,12 @@ function generateGems() {
     }
 }
 
+/**
+ * Helper function to check whether an object is iterable
+ * https://stackoverflow.com/questions/18884249/checking-whether-something-is-iterable
+ * @param obj
+ * @returns {boolean}
+ */
 function isIterable(obj) {
     // checks for null and undefined
     if (obj == null) {

@@ -104,8 +104,10 @@ let Engine = (function (global) {
      * This function checks collisions between our player and the enemies
      */
     function checkCollisions() {
-        if (player.isCollidedWithAnyIn(allEnemies))
-            reset();
+        if (player.isCollidedWithAnyIn(allEnemies)) {
+            // Lost
+            isPlaying = false;
+        }
     }
 
     /**
@@ -154,7 +156,11 @@ let Engine = (function (global) {
             }
         }
 
-        renderEntities();
+        if (isPlaying) {
+            renderEntities();
+        } else {
+            showScoreBoard();
+        }
     }
 
     /**
@@ -180,7 +186,7 @@ let Engine = (function (global) {
     }
 
     /**
-     * Draw the user interface of the game including title, score and gem counts
+     * Draw the user interface of the game including title, score and gem collected counts
      */
     function drawUI() {
         ctx.drawImage(Resources.get('images/frogger-logo.png'), 59, 30);
@@ -204,7 +210,6 @@ let Engine = (function (global) {
         ctx.fillText(gemsCollected["green"].toString(), 34 + 404, 825);
         ctx.strokeText(gemsCollected["orange"].toString(), 34 + 606, 825);
         ctx.fillText(gemsCollected["orange"].toString(), 34 + 606, 825);
-        // showScoreBoard();
     }
 
     /**
@@ -212,25 +217,46 @@ let Engine = (function (global) {
      * The player wins the game when they pass level 14
      * The player loses it when they hit a bug
      */
-    function showScoreBoard(isVictory) {
-        let text = isVictory ? 'Congrats, you won!' : 'Ah, you lost!';
-        ctx.drawImage(Resources.get('images/score-board.jpg'), 0, 0);
+    function showScoreBoard() {
+        let title = level >= 15 ? 'Congrats, you won!' : 'Ah, you lost!',
+            titleX = level >= 15 ? 152 : 220,
+            titleY = 280,
+            totalScore = level * 60 + gemsCollected.blue * 30 + gemsCollected.green * 40 + gemsCollected.orange * 50,
+            scoreBoard = Resources.get('images/score-board.jpg'),
+            starResource = Resources.get('images/Star.png'),
+            gemBlueResource = Resources.get('images/Gem-Blue.png'),
+            gemGreenResource = Resources.get('images/Gem-Green.png'),
+            gemOrangeResource = Resources.get('images/Gem-Orange.png'),
+            offset = 70;
+        // Draw image assets
+        ctx.drawImage(scoreBoard, (canvas.width - scoreBoard.width) / 2, (canvas.height - scoreBoard.height) / 2 - offset);
+        ctx.drawImage(starResource, 175, 260 - offset, starResource.width / 1.5, starResource.height / 1.5);
+        ctx.drawImage(gemBlueResource, 180, 345 - offset, gemBlueResource.width / 1.8, gemBlueResource.height / 1.8);
+        ctx.drawImage(gemGreenResource, 180, 425 - offset, gemGreenResource.width / 1.8, gemGreenResource.height / 1.8);
+        ctx.drawImage(gemOrangeResource, 180, 505 - offset, gemOrangeResource.width / 1.8, gemOrangeResource.height / 1.8);
+        // Draw text
+        ctx.font = "50px Gaegu";
+        ctx.fillStyle = "#fff";
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 3;
+        ctx.strokeText(title, titleX, titleY - offset);
+        ctx.fillText(title, titleX, titleY - offset);
+        ctx.font = "45px Gaegu";
+        ctx.strokeText(level + ' x 60 = ' + level * 60, 270, 340 - offset);
+        ctx.fillText(level + ' x 60 = ' + level * 60, 270, 340 - offset);
+        ctx.strokeText(gemsCollected.blue + ' x 30 = ' + gemsCollected.blue * 30, 270, 420 - offset);
+        ctx.fillText(gemsCollected.blue + ' x 30 = ' + gemsCollected.blue * 30, 270, 420 - offset);
+        ctx.strokeText(gemsCollected.green + ' x 40 = ' + gemsCollected.green * 40, 270, 500 - offset);
+        ctx.fillText(gemsCollected.green + ' x 40 = ' + gemsCollected.green * 40, 270, 500 - offset);
+        ctx.strokeText(gemsCollected.orange + ' x 50 = ' + gemsCollected.orange * 50, 270, 580 - offset);
+        ctx.fillText(gemsCollected.orange + ' x 50 = ' + gemsCollected.orange * 50, 270, 580 - offset);
+        ctx.strokeText('_______', 270, 640 - offset);
+        ctx.fillText('_______', 270, 640 - offset);
+        ctx.strokeText('Total: ' + totalScore.toString(), 270, 640 - offset);
+        ctx.fillText('Total: ' + totalScore.toString(), 270, 640 - offset);
+        ctx.strokeText('Spacebar to restart', 170, 680);
+        ctx.fillText('Spacebar to restart', 170, 680);
     }
-
-    /**
-     * This function does nothing but it could have been a good place to
-     * handle game reset states - maybe a new game menu or a game over screen
-     * those sorts of things. It's only called once by the init() method.
-     */
-    function reset() {
-        level = 0;
-        gemsCollected = {blue: 0, green: 0, orange: 0};
-        player.reset();
-        generateGems();
-        generateRocks();
-        generateEnemies(true);
-    }
-
 
     /**
      * Go ahead and load all of the images we know we're going to need to
