@@ -11,7 +11,22 @@ const CELL_WIDTH = 101,
     GemType = Object.freeze({BLUE: "blue", GREEN: "green", ORANGE: "orange"});
 let level = 0,
     gemsCollected = {blue: 0, green: 0, orange: 0},
-    isPlaying = true;
+    isPlaying = true,
+    bumpSound = new Howl({
+        src: ['audio/bump.wav'],
+    }),
+    collectCoinSound = new Howl({
+        src: ['audio/collect-coin.wav'],
+    }),
+    nextLevelSound = new Howl({
+        src: ['audio/next-level.wav'],
+    }),
+    victorySound = new Howl({
+        src: ['audio/victory.wav'],
+        loop: true
+    });
+
+
 
 
 /************************************************************
@@ -110,8 +125,10 @@ Player.prototype.update = function () {
         level++;
         if (level >= 15) {
             // Victory
+            victorySound.play();
             isPlaying = false; // Pause the game and show the score board
         } else {
+            nextLevelSound.play();
             this.reset();
             generateGems();
             generateRocks();
@@ -165,6 +182,7 @@ Player.prototype.handleInput = function (key) {
         case 'space':
             // Restart the game
             if (!isPlaying) {
+                victorySound.stop();
                 isPlaying = true;
                 reset();
             }
@@ -174,6 +192,7 @@ Player.prototype.handleInput = function (key) {
     for (let i = 0; i < allGems.length; i++) {
         let gem = allGems[i];
         if (this.isCollidedWithA(gem)) {
+            collectCoinSound.play();
             gemsCollected[gem.type]++;
             allGems.splice(i, 1);
             gem = null;

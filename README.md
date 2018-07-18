@@ -34,6 +34,7 @@ Live Demo on [Github Page](https://minhkhang1795.github.io/frontend-nanodegree-a
 * [x] Pretty user interface to show the stats.
 * [x] Pretty scoreboard when the game ends (either the player wins or loses) to show how the player performs.
 * [x] Custom fonts, image assets and titles to make the game more interactive and interesting.
+* [x] Add sound effects for bumping into an obstacle, collecting gems, reaching the next level, and winning.
 
 ## To run the game
 Clone the repository:
@@ -42,12 +43,15 @@ Clone the repository:
 Open `index.html` to play!
 
 ## Credits
-* Project Template:
+* Project template:
     * https://github.com/udacity/frontend-nanodegree-arcade-game
-* Frogger Text Title:
+* Frogger text title:
     * https://flamingtext.com/logo/Design-3D-Text
 * Wood block image asset:
     * http://sentry71.github.io/arcade/
+* Mario sound track:
+    * https://www.sounds-resource.com/nes/smb3/sound/768/
+
     
 
 ## MIT License

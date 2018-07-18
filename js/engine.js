@@ -106,6 +106,9 @@ let Engine = (function (global) {
     function checkCollisions() {
         if (player.isCollidedWithAnyIn(allEnemies)) {
             // Lost
+            if (isPlaying) {
+                bumpSound.play();
+            }
             isPlaying = false;
         }
     }
