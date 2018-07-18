@@ -146,20 +146,20 @@ Player.prototype.render = function () {
 Player.prototype.handleInput = function (key) {
     switch (key) {
         case 'left':
-            if (this.x > 0 && !player.isCollidedWithAnyIn(allRocks, -CELL_WIDTH, 0)) {
+            if (this.x > 0 && !this.isCollidedWithAnyIn(allRocks, -CELL_WIDTH, 0)) {
                 this.x -= CELL_WIDTH;
             }
             break;
         case 'up':
-            if (this.y > 0 && !player.isCollidedWithAnyIn(allRocks, 0, -CELL_HEIGHT))
+            if (this.y > 0 && !this.isCollidedWithAnyIn(allRocks, 0, -CELL_HEIGHT))
                 this.y -= CELL_HEIGHT;
             break;
         case 'right':
-            if (this.x < CELL_WIDTH * (NUM_COL - 1) && !player.isCollidedWithAnyIn(allRocks, CELL_WIDTH, 0))
+            if (this.x < CELL_WIDTH * (NUM_COL - 1) && !this.isCollidedWithAnyIn(allRocks, CELL_WIDTH, 0))
                 this.x += CELL_WIDTH;
             break;
         case 'down':
-            if (this.y < CELL_HEIGHT * (NUM_ROW - 1) - 55 && !player.isCollidedWithAnyIn(allRocks, 0, CELL_HEIGHT))
+            if (this.y < CELL_HEIGHT * (NUM_ROW - 1) - 55 && !this.isCollidedWithAnyIn(allRocks, 0, CELL_HEIGHT))
                 this.y += CELL_HEIGHT;
             break;
         case 'space':
@@ -173,7 +173,7 @@ Player.prototype.handleInput = function (key) {
 
     for (let i = 0; i < allGems.length; i++) {
         let gem = allGems[i];
-        if (player.isCollidedWithA(gem)) {
+        if (this.isCollidedWithA(gem)) {
             gemsCollected[gem.type]++;
             allGems.splice(i, 1);
             gem = null;
@@ -282,6 +282,8 @@ let Gem = function (x = 0, y = 0, type = GemType.BLUE) {
             this.sprite = 'images/Gem-Orange.png';
             break;
         case GemType.BLUE:
+            this.sprite = 'images/Gem-Blue.png';
+            break;
         default:
             this.sprite = 'images/Gem-Blue.png';
     }
@@ -453,7 +455,7 @@ function generateGems() {
  */
 function isIterable(obj) {
     // checks for null and undefined
-    if (obj == null) {
+    if (!obj) {
         return false;
     }
     return typeof obj[Symbol.iterator] === 'function';
