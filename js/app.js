@@ -149,32 +149,34 @@ Player.prototype.render = function () {
  * @param key
  */
 Player.prototype.handleInput = function (key) {
-    switch (key) {
-        case 'left':
-            if (this.x > 0 && !this.isCollidedWithAnyIn(allRocks, -CELL_WIDTH, 0)) {
-                this.x -= CELL_WIDTH;
-            }
-            break;
-        case 'up':
-            if (this.y > 0 && !this.isCollidedWithAnyIn(allRocks, 0, -CELL_HEIGHT))
-                this.y -= CELL_HEIGHT;
-            break;
-        case 'right':
-            if (this.x < CELL_WIDTH * (NUM_COL - 1) && !this.isCollidedWithAnyIn(allRocks, CELL_WIDTH, 0))
-                this.x += CELL_WIDTH;
-            break;
-        case 'down':
-            if (this.y < CELL_HEIGHT * (NUM_ROW - 1) - 55 && !this.isCollidedWithAnyIn(allRocks, 0, CELL_HEIGHT))
-                this.y += CELL_HEIGHT;
-            break;
-        case 'space':
-            // Restart the game
-            if (!isPlaying) {
-                Sound.victory.stop();
-                isPlaying = true;
-                reset();
-            }
-            break;
+    if (isPlaying || key === 'space') {
+        switch (key) {
+            case 'left':
+                if (this.x > 0 && !this.isCollidedWithAnyIn(allRocks, -CELL_WIDTH, 0)) {
+                    this.x -= CELL_WIDTH;
+                }
+                break;
+            case 'up':
+                if (this.y > 0 && !this.isCollidedWithAnyIn(allRocks, 0, -CELL_HEIGHT))
+                    this.y -= CELL_HEIGHT;
+                break;
+            case 'right':
+                if (this.x < CELL_WIDTH * (NUM_COL - 1) && !this.isCollidedWithAnyIn(allRocks, CELL_WIDTH, 0))
+                    this.x += CELL_WIDTH;
+                break;
+            case 'down':
+                if (this.y < CELL_HEIGHT * (NUM_ROW - 1) - 55 && !this.isCollidedWithAnyIn(allRocks, 0, CELL_HEIGHT))
+                    this.y += CELL_HEIGHT;
+                break;
+            case 'space':
+                // Restart the game
+                if (!isPlaying) {
+                    Sound.victory.stop();
+                    isPlaying = true;
+                    reset();
+                }
+                break;
+        }
     }
 
     // Trust me. You can eat a gem right before you die!
