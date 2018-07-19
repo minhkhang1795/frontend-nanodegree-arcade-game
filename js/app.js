@@ -2,31 +2,41 @@
  * This file stores class definitions and initializes main objects of the game.
  * All the logic will be handled here while the front-end will be in engine.js
  */
+'use strict';
 const CELL_WIDTH = 101,
     CELL_HEIGHT = 83,
     NUM_COL = 7,
     NUM_ROW = 8,
     MAX_ENEMIES = 10,
     MAX_ROCKS = 6,
-    GemType = Object.freeze({BLUE: "blue", GREEN: "green", ORANGE: "orange"});
+    GemType = Object.freeze({BLUE: "blue", GREEN: "green", ORANGE: "orange"}),
+    GemsCollected = {
+        blue: 0,
+        green: 0,
+        orange: 0,
+        reset: function () {
+            this.blue = 0;
+            this.green = 0;
+            this.orange = 0;
+        }
+    },
+    Sound = {
+        bump: new Howl({
+            src: ['audio/bump.wav'],
+        }),
+        collectCoin: new Howl({
+            src: ['audio/collect-coin.wav'],
+        }),
+        nextLevel: new Howl({
+            src: ['audio/next-level.wav'],
+        }),
+        victory: new Howl({
+            src: ['audio/victory.wav'],
+            loop: true
+        })
+    };
 let level = 0,
-    gemsCollected = {blue: 0, green: 0, orange: 0},
-    isPlaying = true,
-    bumpSound = new Howl({
-        src: ['audio/bump.wav'],
-    }),
-    collectCoinSound = new Howl({
-        src: ['audio/collect-coin.wav'],
-    }),
-    nextLevelSound = new Howl({
-        src: ['audio/next-level.wav'],
-    }),
-    victorySound = new Howl({
-        src: ['audio/victory.wav'],
-        loop: true
-    });
-
-
+    isPlaying = true;
 
 
 /************************************************************
@@ -37,7 +47,7 @@ let level = 0,
  * @param velocityX                                         *
  * @constructor                                             *
  ************************************************************/
-let Enemy = function (sprite = 'images/enemy-bug.png', x = 0, y = 60, velocityX = 50) {
+const Enemy = function (sprite = 'images/enemy-bug.png', x = 0, y = 60, velocityX = 50) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
 
@@ -96,7 +106,7 @@ Enemy.prototype.rowPosition = function () {
  * The Player class constructor                             *
  * @constructor                                             *
  ************************************************************/
-let Player = function () {
+const Player = function () {
     this.sprite = this.randomSprite();
     this.x = Math.floor(NUM_COL / 2) * CELL_WIDTH;
     this.y = (NUM_ROW - 1) * CELL_HEIGHT - 11;
@@ -113,28 +123,6 @@ Player.prototype.randomSprite = function () {
         'images/char-pink-girl.png',
         'images/char-princess-girl.png'];
     return sprites[Math.floor(Math.random() * (0 - sprites.length) + sprites.length)];
-};
-
-/**
- * Update the player's position, required method for game
- * Also check whether the player reaches the water or they reach level 15
- */
-Player.prototype.update = function () {
-    // Player reaches the water, continue to next level
-    if (this.y < 0 && isPlaying) {
-        level++;
-        if (level >= 15) {
-            // Victory
-            victorySound.play();
-            isPlaying = false; // Pause the game and show the score board
-        } else {
-            nextLevelSound.play();
-            this.reset();
-            generateGems();
-            generateRocks();
-            generateEnemies();
-        }
-    }
 };
 
 /**
@@ -182,21 +170,38 @@ Player.prototype.handleInput = function (key) {
         case 'space':
             // Restart the game
             if (!isPlaying) {
-                victorySound.stop();
+                Sound.victory.stop();
                 isPlaying = true;
                 reset();
             }
             break;
     }
 
+    // Trust me. You can eat a gem right before you die!
     for (let i = 0; i < allGems.length; i++) {
         let gem = allGems[i];
         if (this.isCollidedWithA(gem)) {
-            collectCoinSound.play();
-            gemsCollected[gem.type]++;
+            Sound.collectCoin.play();
+            GemsCollected[gem.type]++;
             allGems.splice(i, 1);
             gem = null;
-            break;
+            return;
+        }
+    }
+
+    // Check if the player reaches the water
+    if (this.y < 0) {
+        level++;
+        if (level >= 15) {
+            // Victory
+            Sound.victory.play();
+            isPlaying = false; // Pause the game and show the score board
+        } else {
+            Sound.nextLevel.play();
+            this.reset();
+            generateGems();
+            generateRocks();
+            generateEnemies();
         }
     }
 };
@@ -257,7 +262,7 @@ Player.prototype.rowPosition = function (y = 0) {
  * @param y                                                 *
  * @constructor                                             *
  ************************************************************/
-let Rock = function (x = 0, y = 60 + CELL_HEIGHT * 3) {
+const Rock = function (x = 0, y = 60 + CELL_HEIGHT * 3) {
     this.sprite = 'images/Rock.png';
     this.x = x;
     this.y = y;
@@ -289,7 +294,7 @@ Rock.prototype.rowPosition = function () {
  * @param {GemType} type                                    *
  * @constructor                                             *
  ************************************************************/
-let Gem = function (x = 0, y = 0, type = GemType.BLUE) {
+const Gem = function (x = 0, y = 0, type = GemType.BLUE) {
     this.x = x;
     this.y = y;
     this.type = type;
@@ -375,12 +380,12 @@ let allGems = [];
 generateGems();
 
 // Place the player object in a variable called player
-let player = new Player();
+const player = new Player();
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
 document.addEventListener('keyup', function (e) {
-    let allowedKeys = {
+    const allowedKeys = {
         37: 'left',
         65: 'left',
         38: 'up',
@@ -397,14 +402,11 @@ document.addEventListener('keyup', function (e) {
 
 
 /**
- * This function does nothing but it could have been a good place to
- * handle game reset states - maybe a new game menu or a game over screen
- * those sorts of things. It's only called once by the init() method.
- *
+ * This function will reset the game.
  */
 function reset() {
     level = 0;
-    gemsCollected = {blue: 0, green: 0, orange: 0};
+    GemsCollected.reset();
     player.reset();
     generateGems();
     generateRocks();

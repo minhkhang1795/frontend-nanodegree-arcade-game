@@ -97,7 +97,6 @@ let Engine = (function (global) {
         allEnemies.forEach(function (enemy) {
             enemy.update(dt);
         });
-        player.update();
     }
 
     /**
@@ -107,7 +106,7 @@ let Engine = (function (global) {
         if (player.isCollidedWithAnyIn(allEnemies)) {
             // Lost
             if (isPlaying) {
-                bumpSound.play();
+                Sound.bump.play();
             }
             isPlaying = false;
         }
@@ -207,12 +206,12 @@ let Engine = (function (global) {
         ctx.lineWidth = 3;
         ctx.strokeText(level.toString(), 34, 825);
         ctx.fillText(level.toString(), 34, 825);
-        ctx.strokeText(gemsCollected["blue"].toString(), 34 + 202, 825);
-        ctx.fillText(gemsCollected["blue"].toString(), 34 + 202, 825);
-        ctx.strokeText(gemsCollected["green"].toString(), 34 + 404, 825);
-        ctx.fillText(gemsCollected["green"].toString(), 34 + 404, 825);
-        ctx.strokeText(gemsCollected["orange"].toString(), 34 + 606, 825);
-        ctx.fillText(gemsCollected["orange"].toString(), 34 + 606, 825);
+        ctx.strokeText(GemsCollected["blue"].toString(), 34 + 202, 825);
+        ctx.fillText(GemsCollected["blue"].toString(), 34 + 202, 825);
+        ctx.strokeText(GemsCollected["green"].toString(), 34 + 404, 825);
+        ctx.fillText(GemsCollected["green"].toString(), 34 + 404, 825);
+        ctx.strokeText(GemsCollected["orange"].toString(), 34 + 606, 825);
+        ctx.fillText(GemsCollected["orange"].toString(), 34 + 606, 825);
     }
 
     /**
@@ -224,7 +223,7 @@ let Engine = (function (global) {
         let title = level >= 15 ? 'Congrats, you won!' : 'Ah, you lost!',
             titleX = level >= 15 ? 152 : 220,
             titleY = 280,
-            totalScore = level * 60 + gemsCollected.blue * 30 + gemsCollected.green * 40 + gemsCollected.orange * 50,
+            totalScore = level * 60 + GemsCollected.blue * 30 + GemsCollected.green * 40 + GemsCollected.orange * 50,
             scoreBoard = Resources.get('images/score-board.jpg'),
             starResource = Resources.get('images/Star.png'),
             gemBlueResource = Resources.get('images/Gem-Blue.png'),
@@ -247,12 +246,12 @@ let Engine = (function (global) {
         ctx.font = "45px Gaegu";
         ctx.strokeText(level + ' x 60 = ' + level * 60, 270, 340 - offset);
         ctx.fillText(level + ' x 60 = ' + level * 60, 270, 340 - offset);
-        ctx.strokeText(gemsCollected.blue + ' x 30 = ' + gemsCollected.blue * 30, 270, 420 - offset);
-        ctx.fillText(gemsCollected.blue + ' x 30 = ' + gemsCollected.blue * 30, 270, 420 - offset);
-        ctx.strokeText(gemsCollected.green + ' x 40 = ' + gemsCollected.green * 40, 270, 500 - offset);
-        ctx.fillText(gemsCollected.green + ' x 40 = ' + gemsCollected.green * 40, 270, 500 - offset);
-        ctx.strokeText(gemsCollected.orange + ' x 50 = ' + gemsCollected.orange * 50, 270, 580 - offset);
-        ctx.fillText(gemsCollected.orange + ' x 50 = ' + gemsCollected.orange * 50, 270, 580 - offset);
+        ctx.strokeText(GemsCollected.blue + ' x 30 = ' + GemsCollected.blue * 30, 270, 420 - offset);
+        ctx.fillText(GemsCollected.blue + ' x 30 = ' + GemsCollected.blue * 30, 270, 420 - offset);
+        ctx.strokeText(GemsCollected.green + ' x 40 = ' + GemsCollected.green * 40, 270, 500 - offset);
+        ctx.fillText(GemsCollected.green + ' x 40 = ' + GemsCollected.green * 40, 270, 500 - offset);
+        ctx.strokeText(GemsCollected.orange + ' x 50 = ' + GemsCollected.orange * 50, 270, 580 - offset);
+        ctx.fillText(GemsCollected.orange + ' x 50 = ' + GemsCollected.orange * 50, 270, 580 - offset);
         ctx.strokeText('_______', 270, 640 - offset);
         ctx.fillText('_______', 270, 640 - offset);
         ctx.strokeText('Total: ' + totalScore.toString(), 270, 640 - offset);
